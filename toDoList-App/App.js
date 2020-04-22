@@ -1,60 +1,47 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, ScrollView, FlatList } from 'react-native';
+
+
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
   const [enteredGoal, setEnteredGoal] = useState('');
   const [courseGoals, setCourseGoals] = useState([]);
 
-  const handleGoalInput = (enteredText) => {
-    setEnteredGoal(enteredText);
+  const addGoalHandler = goalTitle  =>{
+    setCourseGoals(currentGoals => [ 
+      ...currentGoals, 
+      { id: Math.random().toString(), value: goalTitle }
+    ]);
   };
 
-  const addGoalOnButton = () =>{
-    setCourseGoals(currentGoals => [...currentGoals, enteredGoal]);
-  };
+  const removeGoalHandler = goalId => {
+    setCourseGoals(currentGoals => {
+      return currentGoals.filter((goal) => goal.id !== goalId);
+    }); 
+  }
 
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput 
-          placeholder="Course Goal" 
-          style={styles.input} 
-          onChangeText={handleGoalInput}
-          value={enteredGoal}
-        />
-        <Button title="ADD" onPress={addGoalOnButton} />
-      </View>
-      <ScrollView>
-        {courseGoals.map(goal => (
-          <View key={goal} style={styles.listStyle}>
-            <Text>{goal}</Text>
-          </View>
-        ))}
-      </ScrollView>
+     <GoalInput onAddGoal={addGoalHandler} />
+      <FlatList
+        keyExtractor={(item, index) => item.id}
+        data={courseGoals} 
+        renderItem={itemData => (
+            <GoalItem 
+              id={itemData.item.id}  
+              onDelete={removeGoalHandler} 
+              title={itemData.item.value} 
+            />
+        )} 
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  screen: { 
     padding: 50
-  },
-  inputContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  input: {
-    width: '80%', 
-    borderBottomColor: 'black', 
-    borderWidth: 1, 
-    padding: 10
-  },
-  listStyle: {
-    padding: 10, 
-    marginVertical: 10, 
-    backgroundColor: '#ccc',
-    borderColor: 'black',
-    borderWidth: 1
   }
 });
